@@ -1,0 +1,18 @@
+[
+    {
+        "model_name": "resnet50_2",
+        "download_url": ""
+    },
+    {
+        "model_name": "resnet50",
+        "download_url": ""
+    },
+    {
+        "model_name": "densenet121",
+        "download_url": ""
+    },
+    {
+        "model_name": "efficientnet",    
+        "download_url": ""
+    }
+]
