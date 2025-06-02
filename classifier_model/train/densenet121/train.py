@@ -1,10 +1,14 @@
+import sys
+sys.path.append("../")
+sys.path.append("../../")
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, random_split
 from torchvision import transforms, models
 from utils.args import parse_arguments
-from utils.dataset import CelebADataset
+from utils.datasets import CelebADataset
 from utils.train_utils import train_validate_loop
 
 class DenseNet121MultiLabel(nn.Module):
