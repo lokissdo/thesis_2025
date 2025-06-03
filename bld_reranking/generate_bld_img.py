@@ -1,4 +1,7 @@
-# refactored_batch_infer.py (CLI-based)
+import sys
+sys.path.append('../')
+sys.path.append('../../')
+
 import torch
 import torch.nn as nn
 from torchvision import models, transforms
@@ -31,26 +34,41 @@ class CelebADataset(Dataset):
         return image, labels
 
 # ===================== Model =====================
-class MultiLabelModel(nn.Module):
-    def __init__(self, model_name='resnet50', num_labels=40):
-        super().__init__()
-        if model_name == 'resnet50':
-            self.size = 512
-            base = models.resnet50(pretrained=False)
-            num_features = base.fc.in_features
-            base.fc = nn.Identity()
-            self.base_model = base
-            self.fc = nn.Sequential(
-                nn.Linear(num_features, 1024), nn.BatchNorm1d(1024), nn.ReLU(), nn.Dropout(0.5),
-                nn.Linear(1024, 512), nn.BatchNorm1d(512), nn.ReLU(),
-                nn.Linear(512, num_labels), nn.Sigmoid()
-            )
-        else:
-            raise ValueError(f"Model {model_name} not supported")
+class ResNet50MultiLabel(nn.Module):
+    def __init__(self, num_labels=40):
+        super(ResNet50MultiLabel, self).__init__()
+        self.base_model = models.resnet50(pretrained=True)  # Load pretrained ResNet50
+        num_features = self.base_model.fc.in_features
+        self.base_model.fc = nn.Identity()  # Remove the original fully connected layer
+
+        # Additional layers after the base model
+        self.fc1 = nn.Linear(num_features, 1024)  # Add a new fully connected layer
+        self.bn1 = nn.BatchNorm1d(1024)  # Batch normalization layer
+        self.relu1 = nn.ReLU()  # ReLU activation
+        self.drop1 = nn.Dropout(0.5)  # Dropout layer to prevent overfitting
+
+        self.fc2 = nn.Linear(1024, 512)  # Another fully connected layer
+        self.bn2 = nn.BatchNorm1d(512)  # Batch normalization
+        self.relu2 = nn.ReLU()  # ReLU activation
+
+        self.fc3 = nn.Linear(512, num_labels)  # Final layer for multi-label classification
+
+        self.sigmoid = nn.Sigmoid()  # Sigmoid activation for multi-label output
 
     def forward(self, x):
-        x = self.base_model(x)
-        return self.fc(x)
+        x = self.base_model(x)  # Pass through ResNet50
+        x = self.fc1(x)  # First fully connected layer
+        x = self.bn1(x)  # Batch normalization
+        x = self.relu1(x)  # ReLU activation
+        x = self.drop1(x)  # Dropout layer
+
+        x = self.fc2(x)  # Second fully connected layer
+        x = self.bn2(x)  # Batch normalization
+        x = self.relu2(x)  # ReLU activation
+
+        x = self.fc3(x)  # Final layer
+        x = self.sigmoid(x)  # Apply sigmoid activation
+        return x
 
 # ===================== Predict =====================
 def predict_attr_for_image(image_path, model, dataset, attr_index, transform):
@@ -92,7 +110,7 @@ if __name__ == '__main__':
     args = parse_args()
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    model = MultiLabelModel(model_name='resnet50', num_labels=40).to(device)
+    model = ResNet50MultiLabel().to(device)
     model.load_state_dict(torch.load(args.model_path, map_location=device))
     model.eval()
 
