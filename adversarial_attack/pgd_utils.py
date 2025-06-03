@@ -11,6 +11,11 @@ def l2_proj(x_orig, x_adv, epsilon):
     delta = delta * factor.view(-1, 1, 1, 1)
     return x_orig + delta
 
+def unnormalize(tensor):
+    mean = torch.tensor([0.485, 0.456, 0.406], device=tensor.device).view(1, 3, 1, 1)
+    std = torch.tensor([0.229, 0.224, 0.225], device=tensor.device).view(1, 3, 1, 1)
+    return tensor * std + mean
+
 def pgd_attack(model, x, y, epsilon=0.03, step_size=0.01, nb_iter=40, norm='linf', loss_fn=None):
     model.eval()
     x_adv = x.clone().detach().requires_grad_(True)

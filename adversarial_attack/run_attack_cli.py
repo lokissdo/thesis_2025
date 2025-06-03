@@ -1,95 +1,62 @@
-import os
 import argparse
-import torch
+import os
 from PIL import Image
-import matplotlib.pyplot as plt
+import torch
 from torchvision import transforms
-from model_utils import load_classifier
-from pgd_utils import pgd_attack_smile_masked
-from heatmap_utils import generate_heatmap_and_mask, unnormalize
-import cv2
+from matplotlib import pyplot as plt
 
-# ===== Argument Parser =====
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--image', type=str, required=True, help='Path to original image')
-    parser.add_argument('--adv_image', type=str, required=True, help='Path to adversarial input image')
-    parser.add_argument('--output_dir', type=str, required=True, help='Directory to save results')
-    parser.add_argument('--model_path', type=str, required=True, help='Path to model weights')
-    parser.add_argument('--model_name', type=str, default='resnet50', help='Model name (default: resnet50)')
-    parser.add_argument('--label_index', type=int, default=31, help='Label index to attack')
-    parser.add_argument('--cam_type', type=str, default='GradCAM', help='CAM method')
-    parser.add_argument('--threshold', type=float, default=0.5, help='Threshold for mask')
-    parser.add_argument('--epsilon', type=float, default=0.2, help='PGD epsilon')
-    parser.add_argument('--step_size', type=float, default=0.01, help='PGD step size')
-    parser.add_argument('--nb_iter', type=int, default=500, help='Number of PGD iterations')
+from model_utils import load_classifier
+from pgd_utils import pgd_attack_smile_masked, unnormalize
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Adversarial attack on a single image.")
+    parser.add_argument('--weights', type=str, required=True)
+    parser.add_argument('--original', type=str, required=True)
+    parser.add_argument('--input', type=str, required=True)
+    parser.add_argument('--mask', type=str, required=True)
+    parser.add_argument('--output_dir', type=str, default='./output')
     return parser.parse_args()
 
-# ===== Main Runner =====
-if __name__ == '__main__':
-    args = parse_args()
-    os.makedirs(args.output_dir, exist_ok=True)
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = load_classifier(args.model_path, args.model_name, device)
-
-    input_tensor, grayscale_cam, mask_tensor, heatmap, target_image = generate_heatmap_and_mask(
-        args.image, model, target_layer=model.base_model.layer4[-1], label_index=args.label_index,
-        cam_type=args.cam_type, threshold=args.threshold, input_size=model.size, device=device
-    )
-
-    with torch.no_grad():
-        output_original = model(input_tensor)[0, args.label_index].item()
-    print(f"Original score: {output_original:.4f}")
+def main():
+    args = parse_arguments()
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     transform = transforms.Compose([
-        transforms.Resize((model.size, model.size)),
+        transforms.Resize((512, 512)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
-    adv_image = Image.open(args.adv_image).convert("RGB")
-    x_adv_input = transform(adv_image).unsqueeze(0).to(device)
+
+    model = load_classifier(args.weights, 'resnet50', device)
+    original_x = transform(Image.open(args.original).convert('RGB')).unsqueeze(0).to(device)
+    input_x = transform(Image.open(args.input).convert('RGB')).unsqueeze(0).to(device)
+
+    mask_img = Image.open(args.mask).convert("L").resize((512, 512))
+    mask_tensor = transforms.ToTensor()(mask_img).to(device)
+    mask_tensor = (mask_tensor > 0.5).float().unsqueeze(0).repeat(1, 3, 1, 1)
 
     with torch.no_grad():
-        output_adv = model(x_adv_input)[0, args.label_index].item()
-    print(f"Adversarial input score: {output_adv:.4f}")
+        score_original = model(original_x)[0, 31].item()
+        score_input = model(input_x)[0, 31].item()
 
-    target_label = 0.0 if output_original > 0.5 else 1.0
-    y_target = torch.tensor([[target_label]], device=device)
-
-    adv_x = pgd_attack_smile_masked(
-        model, x_adv_input, y_target, mask=mask_tensor,
-        epsilon=args.epsilon, step_size=args.step_size, nb_iter=args.nb_iter
-    )
+    if round(score_input) != round(score_original):
+        adv_x = input_x
+        input_for_attack = input_x
+    else:
+        target_label = 0.0 if score_original > 0.5 else 1.0
+        y_target = torch.tensor([[target_label]], device=device)
+        input_for_attack = input_x if abs(target_label - score_input) < abs(target_label - score_original) else original_x
+        adv_x = pgd_attack_smile_masked(model, input_for_attack, y_target, mask=mask_tensor, epsilon=0.3, step_size=0.5, nb_iter=500)
 
     with torch.no_grad():
-        pred_before = model(x_adv_input)[0, args.label_index].item()
-        pred_after = model(adv_x)[0, args.label_index].item()
+        pred_before = model(input_for_attack)[0, 31].item()
+        pred_after = model(adv_x)[0, 31].item()
 
     print(f"Before attack: {pred_before:.4f}, After attack: {pred_after:.4f}")
 
-    original_img_np = unnormalize(input_tensor).squeeze(0).permute(1, 2, 0).cpu().numpy()
-    adv_img_np = unnormalize(adv_x).squeeze(0).permute(1, 2, 0).cpu().numpy()
+    os.makedirs(args.output_dir, exist_ok=True)
+    for name, tensor in zip(['original', 'adversarial'], [original_x, adv_x]):
+        img = unnormalize(tensor).squeeze(0).permute(1, 2, 0).cpu().clamp(0, 1).numpy()
+        plt.imsave(os.path.join(args.output_dir, f'{name}.png'), img)
 
-    plt.imsave(os.path.join(args.output_dir, 'original.png'), original_img_np)
-    plt.imsave(os.path.join(args.output_dir, 'adversarial.png'), adv_img_np)
-    cv2.imwrite(os.path.join(args.output_dir, 'mask.png'), (mask_tensor[0, 0].cpu().numpy() * 255).astype('uint8'))
-    cv2.imwrite(os.path.join(args.output_dir, 'heatmap.png'), (heatmap * 255).astype('uint8'))
-
-    plt.figure(figsize=(15, 5))
-    plt.subplot(1, 3, 1)
-    plt.imshow(target_image)
-    plt.title("Original Image")
-    plt.axis('off')
-
-    plt.subplot(1, 3, 2)
-    plt.imshow(heatmap)
-    plt.title("Heatmap")
-    plt.axis('off')
-
-    plt.subplot(1, 3, 3)
-    plt.imshow(mask_tensor[0, 0].cpu().numpy(), cmap='gray')
-    plt.title("Mask")
-    plt.axis('off')
-
-    plt.show()
+if __name__ == '__main__':
+    main()
