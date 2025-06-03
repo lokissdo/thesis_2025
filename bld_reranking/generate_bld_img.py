@@ -1,7 +1,4 @@
-import sys
-sys.path.append('../')
-sys.path.append('../../')
-
+# refactored_batch_infer.py (CLI-based)
 import torch
 import torch.nn as nn
 from torchvision import models, transforms
@@ -34,28 +31,59 @@ class CelebADataset(Dataset):
         return image, labels
 
 # ===================== Model =====================
-class ResNet50MultiLabel(nn.Module):
-    def __init__(self, num_labels=40):
-        super(ResNet50MultiLabel, self).__init__()
-        self.base_model = models.resnet50(pretrained=True)  # Load pretrained ResNet50
-        num_features = self.base_model.fc.in_features
-        self.base_model.fc = nn.Identity()  # Remove the original fully connected layer
+class MultiLabelModel(nn.Module):
+    def __init__(self, model_name='resnet18', num_labels=40):
+        super(MultiLabelModel, self).__init__()
+        
+        # Khởi tạo size dựa trên model_name
+        if model_name == 'resnet18':
+            self.size = 1024
+            self.base_model = models.resnet18(pretrained=True)
+            num_features = self.base_model.fc.in_features
+            self.base_model.fc = nn.Linear(num_features, num_labels)
+        elif model_name in ['densenet121', 'vgg19']:
+            self.size = 256
+            if model_name == 'densenet121':
+                self.base_model = models.densenet121(pretrained=True)
+                num_features = self.base_model.classifier.in_features
+                self.base_model.classifier = nn.Linear(num_features, num_labels)
+            else:  # model_name == 'vgg19'
+                self.base_model = models.vgg19(pretrained=True)
+                num_features = self.base_model.classifier[6].in_features
+                self.base_model.classifier[6] = nn.Linear(num_features, num_labels)
+        elif model_name in ['resnet50', 'efficientNet']:
+            self.size = 512
+            if model_name == 'resnet50':
+                self.base_model = models.resnet50(pretrained=True)
+                num_features = self.base_model.fc.in_features
+                # self.base_model.fc = nn.Linear(num_features, num_labels)
+                self.base_model.fc = nn.Identity()  # Remove the original fully connected layer
 
-        # Additional layers after the base model
-        self.fc1 = nn.Linear(num_features, 1024)  # Add a new fully connected layer
-        self.bn1 = nn.BatchNorm1d(1024)  # Batch normalization layer
-        self.relu1 = nn.ReLU()  # ReLU activation
-        self.drop1 = nn.Dropout(0.5)  # Dropout layer to prevent overfitting
+                # Additional layers after the base model
+                self.fc1 = nn.Linear(num_features, 1024)  # Add a new fully connected layer
+                self.bn1 = nn.BatchNorm1d(1024)  # Batch normalization layer
+                self.relu1 = nn.ReLU()  # ReLU activation
+                self.drop1 = nn.Dropout(0.5)  # Dropout layer to prevent overfitting
+        
+                self.fc2 = nn.Linear(1024, 512)  # Another fully connected layer
+                self.bn2 = nn.BatchNorm1d(512)  # Batch normalization
+                self.relu2 = nn.ReLU()  # ReLU activation
+        
+                self.fc3 = nn.Linear(512, num_labels)  # Final layer for multi-label classification
 
-        self.fc2 = nn.Linear(1024, 512)  # Another fully connected layer
-        self.bn2 = nn.BatchNorm1d(512)  # Batch normalization
-        self.relu2 = nn.ReLU()  # ReLU activation
+            else:  # model_name == 'efficientnet'
+                self.base_model = models.efficientnet_b0(pretrained=True)
+                num_features = self.base_model.classifier[-1].in_features
+                self.base_model.classifier[-1] = nn.Linear(num_features, num_labels)
+        else:
+            raise ValueError(f"Model '{model_name}' is not supported.")
 
-        self.fc3 = nn.Linear(512, num_labels)  # Final layer for multi-label classification
-
-        self.sigmoid = nn.Sigmoid()  # Sigmoid activation for multi-label output
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
+        # x = self.base_model(x)
+        # x = self.sigmoid(x)  # Apply sigmoid activation for multi-label classification
+        # return x
         x = self.base_model(x)  # Pass through ResNet50
         x = self.fc1(x)  # First fully connected layer
         x = self.bn1(x)  # Batch normalization
@@ -68,8 +96,9 @@ class ResNet50MultiLabel(nn.Module):
 
         x = self.fc3(x)  # Final layer
         x = self.sigmoid(x)  # Apply sigmoid activation
-        return x
 
+        return x        
+    
 # ===================== Predict =====================
 def predict_attr_for_image(image_path, model, dataset, attr_index, transform):
     model.eval()
@@ -110,7 +139,7 @@ if __name__ == '__main__':
     args = parse_args()
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    model = ResNet50MultiLabel().to(device)
+    model = MultiLabelModel(model_name='resnet50', num_labels=40).to(device)
     model.load_state_dict(torch.load(args.model_path, map_location=device))
     model.eval()
 
