@@ -1,3 +1,4 @@
+open-clip-torch
 grad-cam
 huggingface-hub
 open-clip-torch
