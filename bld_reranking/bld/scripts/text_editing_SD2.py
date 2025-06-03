@@ -290,11 +290,15 @@ class BlendedLatentDiffusion:
 
 if __name__ == "__main__":
     bld = BlendedLatentDiffusion()
-    results, combined_scores = bld.edit_image(
+    results = bld.edit_image(
         bld.args.init_image,
         bld.args.mask,
         prompts=[bld.args.prompt] * bld.args.batch_size,
         blending_percentage=bld.args.blending_start_percentage,
     )
     results_flat = np.concatenate(results, axis=1)
+    Image.fromarray(results_flat[0]).save(bld.args.output_path_1)
+    Image.fromarray(results_flat[1]).save(bld.args.output_path_2)
+    Image.fromarray(results_flat[2]).save(bld.args.output_path_3)
+    Image.fromarray(results_flat[3]).save(bld.args.output_path_4)
     Image.fromarray(results_flat).save(bld.args.output_path)
