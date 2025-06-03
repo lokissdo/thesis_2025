@@ -290,7 +290,7 @@ class BlendedLatentDiffusion:
 
 if __name__ == "__main__":
     bld = BlendedLatentDiffusion()
-    results = bld.edit_image(
+    results, combined_scores = bld.edit_image(
         bld.args.init_image,
         bld.args.mask,
         prompts=[bld.args.prompt] * bld.args.batch_size,
