@@ -13,7 +13,7 @@ do
 
   echo "Running attack on sample ${i}"
 
-  python3 file_single.py \
+  python3 run_attack_cli.py \
     --weights "$weights_path" \
     --image "$image" \
     --mask "$mask" \
