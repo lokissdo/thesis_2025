@@ -181,7 +181,7 @@ if __name__ == '__main__':
             prompt = "(photo-realistic:1.2), ultra-high-resolution portrait of the same person, keep eyes hair nose unchanged, relax the mouth, lips closed, neutral facial expression, soft cinematic lighting, shallow depth of field, 85 mm f/1.4, detailed skin texture, HDR"
 
         command = f"""
-        python3 /blended-latent-diffusion/scripts/text_editing_SD2.py \
+        python3 ./blended-latent-diffusion/scripts/text_editing_SD2.py \
             --prompt \"{prompt}\" \
             --init_image \"{img_path}\" \
             --mask \"{mask_path}\" \
