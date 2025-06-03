@@ -16,7 +16,7 @@ do
   echo "Running attack on sample ${i}"
   mkdir -p "$sample_output"
 
-  python3 -m run_attack_cli.py \
+  python3 run_attack_cli.py \
     --weights "$weights_path" \
     --original "$original" \
     --input "$input" \
