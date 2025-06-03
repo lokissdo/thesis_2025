@@ -129,6 +129,7 @@ def parse_args():
     parser.add_argument('--img_dir', type=str, required=True, help='Directory of CelebA images')
     parser.add_argument('--attr_file', type=str, required=True, help='Path to attribute annotation file')
     parser.add_argument('--mask_dir', type=str, required=True, help='Directory containing masks by index')
+    parser.add_argument('--lora_path', type=str, required=False, help='Path to LoRA weights')
     parser.add_argument('--model_path', type=str, required=True, help='Path to model weights')
     parser.add_argument('--out_dir', type=str, required=True, help='Root output directory')
     parser.add_argument('--attr_idx', type=int, default=31, help='Attribute index to predict')
@@ -180,15 +181,31 @@ if __name__ == '__main__':
         else:
             prompt = "(photo-realistic:1.2), ultra-high-resolution portrait of the same person, keep eyes hair nose unchanged, relax the mouth, lips closed, neutral facial expression, soft cinematic lighting, shallow depth of field, 85 mm f/1.4, detailed skin texture, HDR"
 
-        command = f"""
-        python3 ./bld/scripts/text_editing_SD2.py \
-            --prompt \"{prompt}\" \
-            --init_image \"{img_path}\" \
-            --mask \"{mask_path}\" \
-            --output_path \"{outdir}/res.jpg\" \
-            --output_path_1 \"{outdir}/res_1.jpg\" \
-            --output_path_2 \"{outdir}/res_2.jpg\" \
-            --output_path_3 \"{outdir}/res_3.jpg\" \
-            --output_path_4 \"{outdir}/res_4.jpg\"
-        """
+        if args.lora_path:
+            command = f"""
+            python3 ./bld/scripts/text_editing_SD2.py \
+                --prompt \"{prompt}\" \
+                --init_image \"{img_path}\" \
+                --mask \"{mask_path}\" \
+                --lora_path \"{args.lora_path}\" \
+                --classifier_path \"{args.model_path}\" \
+                --output_path \"{outdir}/res.jpg\" \
+                --output_path_1 \"{outdir}/res_1.jpg\" \
+                --output_path_2 \"{outdir}/res_2.jpg\" \
+                --output_path_3 \"{outdir}/res_3.jpg\" \
+                --output_path_4 \"{outdir}/res_4.jpg\"
+            """
+        else:
+            command = f"""
+            python3 ./bld/scripts/text_editing_SD2.py \
+                --prompt \"{prompt}\" \
+                --init_image \"{img_path}\" \
+                --mask \"{mask_path}\" \
+                --classifier_path \"{args.model_path}\" \
+                --output_path \"{outdir}/res.jpg\" \
+                --output_path_1 \"{outdir}/res_1.jpg\" \
+                --output_path_2 \"{outdir}/res_2.jpg\" \
+                --output_path_3 \"{outdir}/res_3.jpg\" \
+                --output_path_4 \"{outdir}/res_4.jpg\"
+            """
         os.system(command.strip())
