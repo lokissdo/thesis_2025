@@ -1,4 +1,6 @@
-# refactored_batch_infer.py (CLI-based)
+import sys
+sys.path.append('../blended-latent-diffusion')
+
 import torch
 import torch.nn as nn
 from torchvision import models, transforms
