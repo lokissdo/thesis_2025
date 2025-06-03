@@ -48,7 +48,7 @@ def main():
         adv_x = pgd_attack_smile_masked(model, input_for_attack, y_target, mask=mask_tensor, epsilon=0.3, step_size=0.5, nb_iter=500)
 
     with torch.no_grad():
-        pred_before = model(input_for_attack)[0, 31].item()
+        pred_before = model(original_x)[0, 31].item()
         pred_after = model(adv_x)[0, 31].item()
 
     print(f"Before attack: {pred_before:.4f}, After attack: {pred_after:.4f}")
