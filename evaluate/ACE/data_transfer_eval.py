@@ -43,6 +43,7 @@ def download_models_for_evaluate(out_dir):
 
     # Second model
     pretrained_models_dir = os.path.join(out_dir, 'ACE/pretrained_models')
+    os.makedirs(pretrained_models_dir, exist_ok=True)
     os.chdir(pretrained_models_dir)
     subprocess.run(['gdown', '--fuzzy', 
                     'https://drive.google.com/uc?id=1ScPPxFvggpOSKvlorFxMSULQFJbGGaAA'])
