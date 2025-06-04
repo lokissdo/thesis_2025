@@ -60,7 +60,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Copy original and adversarial images into output folders.")
     parser.add_argument("--root_dir", type=str, required=True, help="Path to the root directory containing sample_* folders")
     parser.add_argument("--out_dir", type=str, required=True, help="Output directory to save copied images")
+    parser.add_argument("--eval_model_dir", type=str, default="ACE/models", help="Directory to save evaluation models")
 
     args = parser.parse_args()
     copy_images(args.root_dir, args.out_dir)
-    download_models_for_evaluate(args.out_dir)
+    download_models_for_evaluate(args.eval_model_dir)
