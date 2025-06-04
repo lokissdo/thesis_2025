@@ -1,7 +1,16 @@
+open-clip-torch
 grad-cam
-torch
-torchvision
+huggingface-hub
+open-clip-torch
+sentencepiece
+peft>=0.15
 numpy
 pandas
+torch
+torchvision
+scikit-learn
 pillow
 matplotlib
+opencv-python
+diffusers
+jax[cuda12_pip]==0.4.23 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
