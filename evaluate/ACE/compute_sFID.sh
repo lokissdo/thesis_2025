@@ -1,8 +1,8 @@
 #!/bin/bash
 pip install pytorch-fid
 
-REAL_PATH=/kaggle/working/thesis_2025/evaluate/original
-CF_PATH=/kaggle/working/thesis_2025/evaluate/adversarial
+REAL_PATH=/kaggle/working/original
+CF_PATH=/kaggle/working/adversarial
 TEMPPATH=.temp
 
 mkdir -p ${TEMPPATH}/real/all
