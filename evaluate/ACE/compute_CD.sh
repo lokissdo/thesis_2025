@@ -1,5 +1,5 @@
-OUTDIR="/kaggle/working/thesis_2025/evaluate"
-python "${OUTDIR}/ACE/compute_CD.py" \
+OUT_DIR="/kaggle/working/thesis_2025/evaluate"
+python "${OUT_DIR}/ACE/compute_CD.py" \
     --oracle-path "${OUT_DIR}/ACE/models/checkpoint.tar" \
     --gpu 0 \
     --actual-path "${OUT_DIR}/original" \
