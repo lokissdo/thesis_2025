@@ -1,7 +1,6 @@
 open-clip-torch
 grad-cam
 huggingface-hub
-open-clip-torch
 sentencepiece
 peft>=0.15
 numpy
