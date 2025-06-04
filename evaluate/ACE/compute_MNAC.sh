@@ -1,5 +1,5 @@
 OUT_DIR="/kaggle/working"
-MODEL_EVAL_DIR=" /kaggle/working/thesis_2025/evaluate/ACE/models"
+MODEL_EVAL_DIR="/kaggle/working/thesis_2025/evaluate/ACE/models"
 python compute_MNAC.py \
     --oracle-path "${MODEL_EVAL_DIR}/checkpoint.tar" \
     --actual-dir "${OUT_DIR}/original" \
