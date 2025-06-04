@@ -3,6 +3,9 @@
 echo "Initializing evaluation script..."
 bash data_transfer_eval.sh
 
+echo "Calculating COUT..."
+bash compute_COUT.sh
+
 echo "Calculating sFID..."
 bash compute_sFID.sh
 
