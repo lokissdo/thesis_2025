@@ -1,4 +1,5 @@
 #!/bin/bash
+pip install pytorch-fid
 
 REAL_PATH=/kaggle/working/original
 CF_PATH=/kaggle/working/adversarial
