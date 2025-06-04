@@ -1,4 +1,4 @@
-OUT_DIR="/kaggle/working/thesis_2025/evaluate"
+OUT_DIR="/kaggle/working"
 python "${OUT_DIR}/ACE/compute_CD.py" \
     --oracle-path "${OUT_DIR}/ACE/models/checkpoint.tar" \
     --gpu 0 \
