@@ -35,14 +35,14 @@ def copy_images(root_dir, out_dir):
 
 def download_models_for_evaluate(out_dir):
     # First model
-    models_dir = os.path.join(out_dir, 'models')
+    models_dir = os.path.join(out_dir, 'ACE/models')
     os.chdir(models_dir)
     subprocess.run(['gdown', '--fuzzy',
                     'https://drive.google.com/uc?id=1xX_eExZKY679WQMC6uA-alfkUaoDBkIV'])
     os.chdir(out_dir)
 
     # Second model
-    pretrained_models_dir = os.path.join(out_dir, 'pretrained_models')
+    pretrained_models_dir = os.path.join(out_dir, 'ACE/pretrained_models')
     os.chdir(pretrained_models_dir)
     subprocess.run(['gdown', '--fuzzy', 
                     'https://drive.google.com/uc?id=1ScPPxFvggpOSKvlorFxMSULQFJbGGaAA'])
