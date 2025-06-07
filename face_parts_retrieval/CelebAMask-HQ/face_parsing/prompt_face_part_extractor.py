@@ -5,9 +5,7 @@ from io import BytesIO
 import subprocess
 import argparse
 import google.generativeai as genai
-
-from main import get_parameters
-from tester import Tester
+import shutil
 
 
 
@@ -95,6 +93,7 @@ if __name__ == "__main__":
 
     # Get image path and prompt from command line arguments
     image_path, prompt, model_name, overwrited_prompt = get_prompt_args()
+    img_index = image_path.split('/')[-1].split('.')[0]
     
     chosen_labels = extract_prompt(
         model_name=model_name, 
@@ -105,8 +104,17 @@ if __name__ == "__main__":
     print(chosen_labels)
     chosen_labels_str = ' '.join(chosen_labels)
 
+
+    test_img_dir = './Data_preprocessing/test_img'
+    # Remove all images in ./Data_preprocessing/test_img
+    for file in os.listdir(test_img_dir):
+        os.remove(os.path.join(test_img_dir, file))
+        
+    # Copy the image to ./Data_preprocessing/test_img
+    shutil.copy(image_path, os.path.join(test_img_dir, os.path.basename(image_path)))
+
     # Prepare the command to run main.py with the chosen_labels
-    command = f"python -u main.py --batch_size 1 --imsize 512 --version parsenet --train False --test_size 1 --chosen_labels {chosen_labels_str}"
+    command = f"python -u main.py --batch_size 1 --imsize 512 --version parsenet --train False --test_size 1 --chosen_labels {chosen_labels_str} --test_image_path {test_img_dir}"
 
     # Execute the command
     # Run the command and stream the output
@@ -118,7 +126,11 @@ if __name__ == "__main__":
 
     # Wait for the process to complete
     process.wait()
-
+        
+    # Write the chosen_labels to a file in     /test_results
+    with open(f'./test_results/{img_index}_chosen_labels.txt', 'w') as f:
+        f.write(chosen_labels_str)
+    
     # Check for any errors from stderr
     stderr_output = process.stderr.read()
     if stderr_output:

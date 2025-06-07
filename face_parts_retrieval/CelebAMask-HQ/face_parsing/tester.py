@@ -110,7 +110,7 @@ class Tester(object):
 
                 # Save each part of the segmentation as a separate black-and-white mask
                 # self.save_individual_masks(labels_predict_plain[k], i * self.batch_size + k)
-                self.save_chosen_labels_mask(labels_predict_plain[k], i * self.batch_size + k, self.test_image_path)
+                self.save_chosen_labels_mask(labels_predict_plain[k], i * self.batch_size + k, test_paths[i * self.batch_size+k])
                 
     def save_individual_masks(self, label_image, image_index):
         """
