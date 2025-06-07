@@ -77,7 +77,7 @@ class Tester(object):
         self.test_image_path = config.test_image_path
         self.test_size = config.test_size
         self.model_name = config.model_name
-
+        self.output_mask_name = config.output_mask_name
         self.build_model()
 
     def test(self):
@@ -110,7 +110,8 @@ class Tester(object):
 
                 # Save each part of the segmentation as a separate black-and-white mask
                 # self.save_individual_masks(labels_predict_plain[k], i * self.batch_size + k)
-                self.save_chosen_labels_mask(labels_predict_plain[k], i * self.batch_size + k, test_paths[i * self.batch_size+k])
+                
+                self.save_chosen_labels_mask(labels_predict_plain[k])
                 
     def save_individual_masks(self, label_image, image_index):
         """
@@ -125,14 +126,13 @@ class Tester(object):
             # Save the mask as a .jpg file
             mask_filename = f"{image_index}_{predicted_labels[class_id]}.jpg"
             cv2.imwrite(os.path.join(self.test_label_path, mask_filename), mask)
-    def save_chosen_labels_mask(self, label_image, batch_index, image_path):
+    def save_chosen_labels_mask(self, label_image):
         """
         Save a combined mask for all chosen labels as a black-and-white mask image.
         The mask will include all the chosen labels set to white (255), and other classes set to black (0).
         """
         # Initialize an empty mask with all pixels set to 0 (black)
         combined_mask = np.zeros_like(label_image, dtype=np.uint8)
-        index_image = image_path.split('/')[-1].split('.')[0]
         # Loop through the chosen labels
         print(self.chosen_labels)
         for class_name in self.chosen_labels:
@@ -141,7 +141,7 @@ class Tester(object):
             combined_mask[label_image == class_id] = 255
     
         # Save the combined mask as a .jpg file
-        mask_filename = f"{index_image}_{batch_index}_combined_mask.jpg"
+        mask_filename = f"{self.output_mask_name}"
         cv2.imwrite(os.path.join(self.test_label_path, mask_filename), combined_mask)
 
     def build_model(self):

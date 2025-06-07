@@ -110,11 +110,11 @@ if __name__ == "__main__":
     for file in os.listdir(test_img_dir):
         os.remove(os.path.join(test_img_dir, file))
         
-    # Copy the image to ./Data_preprocessing/test_img
-    shutil.copy(image_path, os.path.join(test_img_dir, os.path.basename(image_path)))
+    # Copy the image to ./Data_preprocessing/test_img/0.jpg
+    shutil.copy(image_path, os.path.join(test_img_dir, f'0.jpg'))
 
     # Prepare the command to run main.py with the chosen_labels
-    command = f"python -u main.py --batch_size 1 --imsize 512 --version parsenet --train False --test_size 1 --chosen_labels {chosen_labels_str} --test_image_path {test_img_dir}"
+    command = f"python -u main.py --batch_size 1 --imsize 512 --version parsenet --train False --test_size 1 --chosen_labels {chosen_labels_str} --test_image_path {test_img_dir} --output_mask_name {img_index}_combined_mask.jpg"
 
     # Execute the command
     # Run the command and stream the output

@@ -42,7 +42,7 @@ def get_parameters():
     parser.add_argument('--test_image_path', type=str, default='./Data_preprocessing/test_img') 
     parser.add_argument('--test_label_path', type=str, default='./test_results') 
     parser.add_argument('--test_color_label_path', type=str, default='./test_color_visualize') 
-
+    parser.add_argument('--output_mask_name', type=str, default='combined_mask.jpg')
     # Step size
     parser.add_argument('--log_step', type=int, default=10)
     parser.add_argument('--sample_step', type=int, default=100)
