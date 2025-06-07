@@ -109,7 +109,7 @@ class Tester(object):
                 save_image(labels_predict_color[k], os.path.join(self.test_color_label_path, str(i * self.batch_size + k) + '.png'))
 
                 # Save each part of the segmentation as a separate black-and-white mask
-                self.save_individual_masks(labels_predict_plain[k], i * self.batch_size + k)
+                # self.save_individual_masks(labels_predict_plain[k], i * self.batch_size + k)
                 self.save_chosen_labels_mask(labels_predict_plain[k], i * self.batch_size + k)
                 
     def save_individual_masks(self, label_image, image_index):
