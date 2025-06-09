@@ -6,7 +6,7 @@ import subprocess
 import argparse
 import google.generativeai as genai
 import shutil
-
+import csv
 
 
 
@@ -128,8 +128,19 @@ if __name__ == "__main__":
     process.wait()
         
     # Write the chosen_labels to a file in     /test_results
-    with open(f'./test_results/{img_index}_chosen_labels.txt', 'w') as f:
-        f.write(chosen_labels_str)
+    csv_path = './test_results/chosen_labels.csv'
+    file_exists = os.path.isfile(csv_path)
+    is_empty = not file_exists or os.stat(csv_path).st_size == 0
+
+    with open(csv_path, mode='a', newline='', encoding='utf-8') as csvfile:
+        writer = csv.writer(csvfile)
+        
+        # Ghi header nếu file trống
+        if is_empty:
+            writer.writerow(['img_index', 'chosen_labels'])
+
+        # Ghi dữ liệu
+        writer.writerow([img_index, chosen_labels_str])
     
     # Check for any errors from stderr
     stderr_output = process.stderr.read()
