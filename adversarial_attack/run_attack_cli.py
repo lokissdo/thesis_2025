@@ -7,13 +7,20 @@ from matplotlib import pyplot as plt
 
 from model_utils import load_classifier
 from pgd_utils import pgd_attack_smile_masked, unnormalize
+
+from fgsm_utils import fgsm_attack_smile_masked
+from ifgsm_utils import ifgsm_attack_smile_masked
+from cw_utils import cw_attack_smile_masked
+
 def parse_arguments():
+
     parser = argparse.ArgumentParser(description="Adversarial attack on a single image.")
     parser.add_argument('--weights', type=str, required=True)
     parser.add_argument('--original', type=str, required=True)
     parser.add_argument('--input', type=str, required=True)
     parser.add_argument('--mask', type=str, required=True)
     parser.add_argument('--output_dir', type=str, default='./output')
+    parser.add_argument('--attack_method', type=str, default='pgd', choices=['pgd', 'fgsm', 'ifgsm', 'cw'])
     return parser.parse_args()
 
 def main():
@@ -45,7 +52,16 @@ def main():
         target_label = 0.0 if score_original > 0.5 else 1.0
         y_target = torch.tensor([[target_label]], device=device)
         input_for_attack = input_x if abs(target_label - score_input) < abs(target_label - score_original) else original_x
-        adv_x = pgd_attack_smile_masked(model, input_for_attack, y_target, mask=mask_tensor, epsilon=0.3, step_size=0.5, nb_iter=500)
+        if args.attack_method == 'pgd':
+            adv_x = pgd_attack_smile_masked(model, input_for_attack, y_target, mask=mask_tensor, epsilon=0.3, step_size=0.5, nb_iter=500)
+        elif args.attack_method == 'fgsm':
+            adv_x = fgsm_attack_smile_masked(model, input_for_attack, y_target, mask=mask_tensor, epsilon=0.3)
+        elif args.attack_method == 'ifgsm':
+            adv_x = ifgsm_attack_smile_masked(model, input_for_attack, y_target, mask=mask_tensor, epsilon=0.3, step_size=0.05, nb_iter=20)
+        elif args.attack_method == 'cw':
+            adv_x = cw_attack_smile_masked(model, input_for_attack, y_target, mask=mask_tensor, c=1e-4, kappa=0, max_iter=500, lr=0.01)
+        else:
+            raise ValueError(f"Unsupported attack method: {args.attack_method}")
 
     with torch.no_grad():
         pred_before = model(original_x)[0, 31].item()

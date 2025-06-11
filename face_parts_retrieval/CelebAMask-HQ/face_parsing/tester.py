@@ -150,4 +150,4 @@ class Tester(object):
             self.G = nn.DataParallel(self.G)
 
         # Print networks
-        print(self.G)
+        # print(self.G)

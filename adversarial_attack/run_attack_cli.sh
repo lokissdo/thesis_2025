@@ -21,5 +21,6 @@ do
     --original "$original" \
     --input "$input" \
     --mask "$mask" \
-    --output_dir "$sample_output"
+    --output_dir "$sample_output" \
+    --attack_method "pgd"
 done
