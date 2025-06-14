@@ -21,6 +21,9 @@ bash compute_MNAC.sh
 echo "Calculating FID..."
 bash compute_FID.sh
 
+echo "Calculating SimSiam Similarity..."
+bash compute_SimSiamSimilarity.sh
+
 echo "Calculating FVA..."
 bash compute_FVA.sh
 
