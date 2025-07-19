@@ -1,0 +1,147 @@
+{
+    "5_o_Clock_Shadow": [
+        "skin"
+    ],
+    "Arched_Eyebrows": [
+        "left_brow",
+        "right_brow"
+    ],
+    "Attractive": [
+        "skin"
+    ],
+    "Bags_Under_Eyes": [
+        "left_eye",
+        "right_eye",
+        "skin"
+    ],
+    "Bald": [
+        "hair",
+        "hat"
+    ],
+    "Bangs": [
+        "hair"
+    ],
+    "Big_Lips": [
+        "mouth",
+        "upper_lip",
+        "lower_lip"
+    ],
+    "Big_Nose": [
+        "nose"
+    ],
+    "Black_Hair": [
+        "hair"
+    ],
+    "Blond_Hair": [
+        "hair"
+    ],
+    "Blurry": [
+        "skin"
+    ],
+    "Brown_Hair": [
+        "hair"
+    ],
+    "Bushy_Eyebrows": [
+        "left_brow",
+        "right_brow"
+    ],
+    "Chubby": [
+        "skin"
+    ],
+    "Double_Chin": [
+        "neck",
+        "skin"
+    ],
+    "Eyeglasses": [
+        "left_eye",
+        "right_eye",
+        "eye_glasses"
+    ],
+    "Goatee": [
+        "chin",
+        "mouth"
+    ],
+    "Gray_Hair": [
+        "hair"
+    ],
+    "Heavy_Makeup": [
+        "left_eye",
+        "right_eye",
+        "upper_lip",
+        "lower_lip"
+    ],
+    "High_Cheekbones": [
+        "skin"
+    ],
+    "Male": [
+        "skin",
+        "hair"
+    ],
+    "Mouth_Slightly_Open": [
+        "mouth",
+        "upper_lip",
+        "lower_lip"
+    ],
+    "Mustache": [
+        "upper_lip"
+    ],
+    "Narrow_Eyes": [
+        "left_eye",
+        "right_eye"
+    ],
+    "No_Beard": [
+        "skin"
+    ],
+    "Oval_Face": [
+        "skin"
+    ],
+    "Pale_Skin": [
+        "skin"
+    ],
+    "Pointy_Nose": [
+        "nose"
+    ],
+    "Receding_Hairline": [
+        "hair"
+    ],
+    "Rosy_Cheeks": [
+        "skin"
+    ],
+    "Sideburns": [
+        "hair",
+        "skin"
+    ],
+    "Smiling": [
+        "mouth",
+        "upper_lip",
+        "lower_lip"
+    ],
+    "Straight_Hair": [
+        "hair"
+    ],
+    "Wavy_Hair": [
+        "hair"
+    ],
+    "Wearing_Earrings": [
+        "left_ear",
+        "right_ear",
+        "ear_ring"
+    ],
+    "Wearing_Hat": [
+        "hat"
+    ],
+    "Wearing_Lipstick": [
+        "upper_lip",
+        "lower_lip"
+    ],
+    "Wearing_Necklace": [
+        "necklace"
+    ],
+    "Wearing_Necktie": [
+        "neck",
+        "cloth"
+    ],
+    "Young": [
+        "skin"
+    ]
+}
